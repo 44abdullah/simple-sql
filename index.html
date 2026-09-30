@@ -1715,7 +1715,7 @@
         title: 'CREATE TABLE',
         fields: [
           { key: 'table', label: 'اسم الجدول', type: 'text', default: 'projects' },
-          { key: 'columns', label: 'تعريف الأعمدة', type: 'text', default: 'id INTEGER PRIMARY KEY, title TEXT, budget REAL' }
+          { key: 'columns', label: 'تعريف الأعمدة', type: 'text', default: 'id NUMBER PRIMARY KEY, title TEXT, budget REAL' }
         ]
       },
       DROP_TABLE: {
@@ -1765,6 +1765,13 @@
 
     const PALETTE_SECTIONS = [
       {
+        id: 'ddl', label: 'تعريف الهيكل (DDL)', open: true,
+        items: [
+          { type: 'CREATE_TABLE', label: 'CREATE TABLE', tag: 'DDL' },
+          { type: 'DROP_TABLE', label: 'DROP TABLE', tag: 'DDL' }
+        ]
+      },
+      {
         id: 'dml', label: 'أوامر البيانات (DML)', open: true,
         items: [
           { type: 'SELECT', label: 'SELECT', tag: 'DML' },
@@ -1781,13 +1788,6 @@
           { type: 'GROUP_BY', label: 'GROUP BY', tag: 'Clause' },
           { type: 'HAVING', label: 'HAVING', tag: 'Clause' },
           { type: 'ORDER_BY', label: 'ORDER BY', tag: 'Clause' }
-        ]
-      },
-      {
-        id: 'ddl', label: 'تعريف الهيكل (DDL)', open: false,
-        items: [
-          { type: 'CREATE_TABLE', label: 'CREATE TABLE', tag: 'DDL' },
-          { type: 'DROP_TABLE', label: 'DROP TABLE', tag: 'DDL' }
         ]
       }
     ];
@@ -2507,7 +2507,7 @@
           left.appendChild(colName);
 
           const colType = document.createElement('span');
-          colType.className = 'schema-col-type'; colType.textContent = col[2];
+          colType.className = 'schema-col-type'; colType.textContent = (col[2] || '').replace(/INTEGER/gi, 'NUMBER');
 
           colRow.appendChild(left); colRow.appendChild(colType);
           colsDiv.appendChild(colRow);
