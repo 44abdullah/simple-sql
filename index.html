@@ -1901,8 +1901,7 @@
       }
 
       const finalLines = hasSelect ? lines.filter(function (l) { return l !== '-- ملاحظة: يتطلب JOIN وجود SELECT أولاً'; }) : lines;
-      return finalLines.join('
-') + ';';
+      return finalLines.join('\n') + ';';
     }
 
     function updateEditor() {
@@ -2418,15 +2417,13 @@
         rows.push(row.map(function (cell) {
           if (cell === null) return '';
           const s = String(cell);
-          if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('
-') !== -1) {
+          if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
             return '"' + s.replace(/"/g, '""') + '"';
           }
           return s;
         }).join(','));
       });
-      const csv = BOM + rows.join('
-');
+      const csv = BOM + rows.join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2796,9 +2793,8 @@
         document.getElementById('btnFormatSQL').addEventListener('click', function () {
           const raw = document.getElementById('codeEditor').value;
           if (!raw.trim()) return;
-          const formatted = raw.replace(/s+/g, ' ')
-            .replace(/s*(SELECT|FROM|WHERE|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|GROUP BY|HAVING|ORDER BY|INSERT INTO|VALUES|UPDATE|SET|DELETE FROM|CREATE TABLE|DROP TABLE)s*/gi, '
-$1 ')
+          const formatted = raw.replace(/\s+/g, ' ')
+            .replace(/\s*(SELECT|FROM|WHERE|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|GROUP BY|HAVING|ORDER BY|INSERT INTO|VALUES|UPDATE|SET|DELETE FROM|CREATE TABLE|DROP TABLE)\s*/gi, '\n$1 ')
             .trim();
           document.getElementById('codeEditor').value = formatted;
           showToast('✨ تم تنسيق الكود', 'success');
