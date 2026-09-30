@@ -1571,6 +1571,14 @@
               <span class="preset-item-title">📊 إحصائيات رواتب الأقسام</span>
               <span style="font-size:11px;">SELECT + GROUP BY + HAVING</span>
             </div>
+            <div class="preset-item" data-preset="top_limit">
+              <span class="preset-item-title">⚡ أعلى 3 رواتب مع الإزاحة</span>
+              <span style="font-size:11px;">SELECT + ORDER BY + LIMIT</span>
+            </div>
+            <div class="preset-item" data-preset="subquery_demo">
+              <span class="preset-item-title">🔍 استعلام فرعي (Subquery)</span>
+              <span style="font-size:11px;">SELECT + WHERE IN (SUBQUERY)</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1680,11 +1688,52 @@
        CONSTANTS & DATA MODEL
        ============================================= */
     const BLOCK_TEMPLATES = {
+      // DDL
+      CREATE_TABLE: {
+        title: 'CREATE TABLE',
+        fields: [
+          { key: 'table', label: 'اسم الجدول', type: 'text', default: 'projects' },
+          { key: 'columns', label: 'تعريف الأعمدة', type: 'text', default: 'id NUMBER PRIMARY KEY, title TEXT, budget REAL' }
+        ]
+      },
+      ALTER_TABLE: {
+        title: 'ALTER TABLE',
+        fields: [
+          { key: 'table', label: 'الجدول الحالي', type: 'dynamic_table', default: 'employees' },
+          { key: 'action', label: 'نوع التعديل', type: 'select', options: ['ADD COLUMN', 'RENAME TO'], default: 'ADD COLUMN' },
+          { key: 'details', label: 'التفاصيل', type: 'text', default: 'phone TEXT' }
+        ]
+      },
+      DROP_TABLE: {
+        title: 'DROP TABLE',
+        fields: [{ key: 'table', label: 'اسم الجدول', type: 'dynamic_table', default: 'projects' }]
+      },
+      CREATE_INDEX: {
+        title: 'CREATE INDEX',
+        fields: [
+          { key: 'name', label: 'اسم الفهرس', type: 'text', default: 'idx_emp_salary' },
+          { key: 'table', label: 'الجدول', type: 'dynamic_table', default: 'employees' },
+          { key: 'column', label: 'العمود', type: 'text', default: 'salary' }
+        ]
+      },
+      DROP_INDEX: {
+        title: 'DROP INDEX',
+        fields: [{ key: 'name', label: 'اسم الفهرس', type: 'text', default: 'idx_emp_salary' }]
+      },
+
+      // DML
       SELECT: {
         title: 'SELECT',
         fields: [
           { key: 'columns', label: 'الأعمدة (* أو مفصولة بفاصلة)', type: 'dynamic_columns', default: '*' },
           { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'employees' }
+        ]
+      },
+      SELECT_DISTINCT: {
+        title: 'SELECT DISTINCT',
+        fields: [
+          { key: 'columns', label: 'الأعمدة الفريدة', type: 'dynamic_columns', default: 'location' },
+          { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'departments' }
         ]
       },
       INSERT: {
@@ -1706,25 +1755,38 @@
         title: 'DELETE',
         fields: [{ key: 'table', label: 'الجدول', type: 'dynamic_table', default: 'employees' }]
       },
-      CREATE_TABLE: {
-        title: 'CREATE TABLE',
-        fields: [
-          { key: 'table', label: 'اسم الجدول', type: 'text', default: 'projects' },
-          { key: 'columns', label: 'تعريف الأعمدة', type: 'text', default: 'id NUMBER PRIMARY KEY, title TEXT, budget REAL' }
-        ]
-      },
-      DROP_TABLE: {
-        title: 'DROP TABLE',
-        fields: [{ key: 'table', label: 'اسم الجدول', type: 'dynamic_table', default: 'projects' }]
-      },
+
+      // Clauses & Filters
       WHERE: {
         title: 'WHERE',
         fields: [{ key: 'condition', label: 'شرط التصفية', type: 'text', default: 'salary > 8000' }]
       },
+      WHERE_LIKE: {
+        title: 'WHERE LIKE',
+        fields: [
+          { key: 'column', label: 'العمود', type: 'text', default: 'name' },
+          { key: 'pattern', label: 'النص المراد البحث عنه (% للمطابقة)', type: 'text', default: "'أحمد%'" }
+        ]
+      },
+      WHERE_BETWEEN: {
+        title: 'WHERE BETWEEN',
+        fields: [
+          { key: 'column', label: 'العمود', type: 'text', default: 'salary' },
+          { key: 'min', label: 'أدنى قيمة', type: 'text', default: '5000' },
+          { key: 'max', label: 'أقصى قيمة', type: 'text', default: '10000' }
+        ]
+      },
+      WHERE_IN: {
+        title: 'WHERE IN',
+        fields: [
+          { key: 'column', label: 'العمود', type: 'text', default: 'dept_id' },
+          { key: 'values', label: 'القيم المفصولة بفاصلة', type: 'text', default: '1, 2, 4' }
+        ]
+      },
       JOIN: {
         title: 'JOIN',
         fields: [
-          { key: 'type', label: 'نوع الربط', type: 'select', options: ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN'], default: 'INNER JOIN' },
+          { key: 'type', label: 'نوع الربط', type: 'select', options: ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'CROSS JOIN'], default: 'INNER JOIN' },
           { key: 'table', label: 'الجدول المرتبط', type: 'dynamic_table', default: 'departments' },
           { key: 'on', label: 'شرط الربط ON', type: 'text', default: 'employees.dept_id = departments.id' }
         ]
@@ -1743,46 +1805,111 @@
           { key: 'column', label: 'العمود', type: 'text', default: 'salary' },
           { key: 'dir', label: 'اتجاه الترتيب', type: 'select', options: ['DESC', 'ASC'], default: 'DESC' }
         ]
-      }
+      },
+      LIMIT: {
+        title: 'LIMIT / OFFSET',
+        fields: [
+          { key: 'limit', label: 'عدد الصفوف (LIMIT)', type: 'text', default: '5' },
+          { key: 'offset', label: 'الإزاحة (OFFSET)', type: 'text', default: '0' }
+        ]
+      },
+
+      // Subqueries & Union
+      UNION: {
+        title: 'UNION',
+        fields: [
+          { key: 'type', label: 'النوع', type: 'select', options: ['UNION', 'UNION ALL'], default: 'UNION' },
+          { key: 'select_columns', label: 'الأعمدة', type: 'text', default: 'name' },
+          { key: 'table', label: 'الجدول', type: 'dynamic_table', default: 'departments' }
+        ]
+      },
+      SUBQUERY: {
+        title: 'SUBQUERY (IN)',
+        fields: [
+          { key: 'column', label: 'العمود الرئيسي', type: 'text', default: 'id' },
+          { key: 'sub_col', label: 'عمود الاستعلام الفرعي', type: 'text', default: 'employee_id' },
+          { key: 'sub_table', label: 'جدول الاستعلام الفرعي', type: 'text', default: 'orders' },
+          { key: 'sub_where', label: 'شرط الفرعي (اختياري)', type: 'text', default: "status = 'مكتمل'" }
+        ]
+      },
+
+      // TCL Transactions
+      BEGIN: { title: 'BEGIN TRANSACTION', fields: [] },
+      COMMIT: { title: 'COMMIT', fields: [] },
+      ROLLBACK: { title: 'ROLLBACK', fields: [] }
     };
 
     const BLOCK_COLORS = {
-      SELECT: '#38bdf8', INSERT: '#10b981', UPDATE: '#f59e0b', DELETE: '#f43f5e',
-      CREATE_TABLE: '#a855f7', DROP_TABLE: '#ef4444', WHERE: '#ec4899',
-      JOIN: '#6366f1', GROUP_BY: '#06b6d4', HAVING: '#f472b6', ORDER_BY: '#94a3b8'
+      SELECT: '#38bdf8', SELECT_DISTINCT: '#0284c7', INSERT: '#10b981', UPDATE: '#f59e0b', DELETE: '#f43f5e',
+      CREATE_TABLE: '#a855f7', ALTER_TABLE: '#8b5cf6', DROP_TABLE: '#ef4444',
+      CREATE_INDEX: '#14b8a6', DROP_INDEX: '#f43f5e',
+      WHERE: '#ec4899', WHERE_LIKE: '#db2777', WHERE_BETWEEN: '#be185d', WHERE_IN: '#9d174d',
+      JOIN: '#6366f1', GROUP_BY: '#06b6d4', HAVING: '#f472b6', ORDER_BY: '#94a3b8',
+      LIMIT: '#eab308', UNION: '#a855f7', SUBQUERY: '#3b82f6',
+      BEGIN: '#22c55e', COMMIT: '#16a34a', ROLLBACK: '#ef4444'
     };
 
     const BLOCK_ORDER = {
-      CREATE_TABLE: 0, DROP_TABLE: 0,
-      SELECT: 1, INSERT: 1, UPDATE: 1, DELETE: 1,
-      JOIN: 3, WHERE: 4, GROUP_BY: 5, HAVING: 6, ORDER_BY: 7
+      BEGIN: -1,
+      CREATE_TABLE: 0, ALTER_TABLE: 0, DROP_TABLE: 0, CREATE_INDEX: 0, DROP_INDEX: 0,
+      SELECT: 1, SELECT_DISTINCT: 1, INSERT: 1, UPDATE: 1, DELETE: 1,
+      JOIN: 3,
+      WHERE: 4, WHERE_LIKE: 4, WHERE_BETWEEN: 4, WHERE_IN: 4, SUBQUERY: 4,
+      GROUP_BY: 5, HAVING: 6,
+      ORDER_BY: 7,
+      LIMIT: 8,
+      UNION: 9,
+      COMMIT: 10, ROLLBACK: 10
     };
 
     const PALETTE_SECTIONS = [
       {
-        id: 'ddl', label: 'تعريف الهيكل (DDL)', open: true,
+        id: 'ddl', label: '1. تعريف الهيكل (DDL)', open: true,
         items: [
           { type: 'CREATE_TABLE', label: 'CREATE TABLE', tag: 'DDL' },
-          { type: 'DROP_TABLE', label: 'DROP TABLE', tag: 'DDL' }
+          { type: 'ALTER_TABLE', label: 'ALTER TABLE', tag: 'DDL' },
+          { type: 'DROP_TABLE', label: 'DROP TABLE', tag: 'DDL' },
+          { type: 'CREATE_INDEX', label: 'CREATE INDEX', tag: 'DDL' },
+          { type: 'DROP_INDEX', label: 'DROP INDEX', tag: 'DDL' }
         ]
       },
       {
-        id: 'dml', label: 'أوامر البيانات (DML)', open: true,
+        id: 'dml', label: '2. أوامر البيانات (DML)', open: true,
         items: [
           { type: 'SELECT', label: 'SELECT', tag: 'DML' },
-          { type: 'INSERT', label: 'INSERT', tag: 'DML' },
+          { type: 'SELECT_DISTINCT', label: 'SELECT DISTINCT', tag: 'DML' },
+          { type: 'INSERT', label: 'INSERT INTO', tag: 'DML' },
           { type: 'UPDATE', label: 'UPDATE', tag: 'DML' },
-          { type: 'DELETE', label: 'DELETE', tag: 'DML' }
+          { type: 'DELETE', label: 'DELETE FROM', tag: 'DML' }
         ]
       },
       {
-        id: 'clauses', label: 'جمل الاستعلام (Clauses)', open: true,
+        id: 'clauses', label: '3. الشروط والتصفية (Clauses)', open: true,
         items: [
           { type: 'WHERE', label: 'WHERE', tag: 'Clause' },
+          { type: 'WHERE_LIKE', label: 'WHERE LIKE', tag: 'Clause' },
+          { type: 'WHERE_BETWEEN', label: 'WHERE BETWEEN', tag: 'Clause' },
+          { type: 'WHERE_IN', label: 'WHERE IN', tag: 'Clause' },
           { type: 'JOIN', label: 'JOIN', tag: 'Clause' },
           { type: 'GROUP_BY', label: 'GROUP BY', tag: 'Clause' },
           { type: 'HAVING', label: 'HAVING', tag: 'Clause' },
-          { type: 'ORDER_BY', label: 'ORDER BY', tag: 'Clause' }
+          { type: 'ORDER_BY', label: 'ORDER BY', tag: 'Clause' },
+          { type: 'LIMIT', label: 'LIMIT / OFFSET', tag: 'Clause' }
+        ]
+      },
+      {
+        id: 'subqueries', label: '4. الربط والاستعلامات الفرعية', open: false,
+        items: [
+          { type: 'UNION', label: 'UNION / UNION ALL', tag: 'Combine' },
+          { type: 'SUBQUERY', label: 'SUBQUERY (IN)', tag: 'Nested' }
+        ]
+      },
+      {
+        id: 'tcl', label: '5. المعاملات (TCL Transactions)', open: false,
+        items: [
+          { type: 'BEGIN', label: 'BEGIN TRANSACTION', tag: 'TCL' },
+          { type: 'COMMIT', label: 'COMMIT', tag: 'TCL' },
+          { type: 'ROLLBACK', label: 'ROLLBACK', tag: 'TCL' }
         ]
       }
     ];
@@ -1855,15 +1982,32 @@
       });
 
       const joinBlocks = sorted.filter(function (b) { return b.type === 'JOIN'; });
-      const hasSelect = sorted.some(function (b) { return b.type === 'SELECT'; });
+      const hasSelect = sorted.some(function (b) { return b.type === 'SELECT' || b.type === 'SELECT_DISTINCT'; });
       const lines = [];
 
       for (let i = 0; i < sorted.length; i++) {
         const block = sorted[i];
         const v = block.values;
         switch (block.type) {
+          case 'BEGIN':
+            lines.push('BEGIN TRANSACTION');
+            break;
+          case 'COMMIT':
+            lines.push('COMMIT');
+            break;
+          case 'ROLLBACK':
+            lines.push('ROLLBACK');
+            break;
           case 'SELECT':
             lines.push('SELECT ' + (v.columns || '*'));
+            lines.push('FROM ' + (v.table || 'employees'));
+            for (let j = 0; j < joinBlocks.length; j++) {
+              const jb = joinBlocks[j];
+              lines.push((jb.values.type || 'INNER JOIN') + ' ' + (jb.values.table || '') + ' ON ' + (jb.values.on || ''));
+            }
+            break;
+          case 'SELECT_DISTINCT':
+            lines.push('SELECT DISTINCT ' + (v.columns || '*'));
             lines.push('FROM ' + (v.table || 'employees'));
             for (let j = 0; j < joinBlocks.length; j++) {
               const jb = joinBlocks[j];
@@ -1873,10 +2017,39 @@
           case 'JOIN':
             if (!hasSelect) lines.push('-- ملاحظة: يتطلب JOIN وجود SELECT أولاً');
             break;
-          case 'WHERE': lines.push('WHERE ' + (v.condition || '')); break;
-          case 'GROUP_BY': lines.push('GROUP BY ' + (v.columns || '')); break;
-          case 'HAVING': lines.push('HAVING ' + (v.condition || '')); break;
-          case 'ORDER_BY': lines.push('ORDER BY ' + (v.column || '') + ' ' + (v.dir || 'DESC')); break;
+          case 'WHERE':
+            lines.push('WHERE ' + (v.condition || ''));
+            break;
+          case 'WHERE_LIKE':
+            lines.push('WHERE ' + (v.column || 'name') + ' LIKE ' + (v.pattern || "''"));
+            break;
+          case 'WHERE_BETWEEN':
+            lines.push('WHERE ' + (v.column || 'salary') + ' BETWEEN ' + (v.min || '0') + ' AND ' + (v.max || '100'));
+            break;
+          case 'WHERE_IN':
+            lines.push('WHERE ' + (v.column || 'id') + ' IN (' + (v.values || '') + ')');
+            break;
+          case 'SUBQUERY':
+            let sq = 'WHERE ' + (v.column || 'id') + ' IN (SELECT ' + (v.sub_col || '*') + ' FROM ' + (v.sub_table || '');
+            if (v.sub_where) sq += ' WHERE ' + v.sub_where;
+            sq += ')';
+            lines.push(sq);
+            break;
+          case 'GROUP_BY':
+            lines.push('GROUP BY ' + (v.columns || ''));
+            break;
+          case 'HAVING':
+            lines.push('HAVING ' + (v.condition || ''));
+            break;
+          case 'ORDER_BY':
+            lines.push('ORDER BY ' + (v.column || '') + ' ' + (v.dir || 'DESC'));
+            break;
+          case 'LIMIT':
+            lines.push('LIMIT ' + (v.limit || '5') + (v.offset && v.offset !== '0' ? ' OFFSET ' + v.offset : ''));
+            break;
+          case 'UNION':
+            lines.push((v.type || 'UNION') + ' SELECT ' + (v.select_columns || '*') + ' FROM ' + (v.table || ''));
+            break;
           case 'INSERT':
             lines.push('INSERT INTO ' + (v.table || '') + ' (' + (v.columns || '') + ')');
             lines.push('VALUES (' + (v.values || '') + ')');
@@ -1885,13 +2058,26 @@
             lines.push('UPDATE ' + (v.table || ''));
             lines.push('SET ' + (v.set || ''));
             break;
-          case 'DELETE': lines.push('DELETE FROM ' + (v.table || '')); break;
+          case 'DELETE':
+            lines.push('DELETE FROM ' + (v.table || ''));
+            break;
           case 'CREATE_TABLE':
             lines.push('CREATE TABLE ' + (v.table || '') + ' (');
             lines.push('  ' + (v.columns || ''));
             lines.push(')');
             break;
-          case 'DROP_TABLE': lines.push('DROP TABLE ' + (v.table || '')); break;
+          case 'ALTER_TABLE':
+            lines.push('ALTER TABLE ' + (v.table || '') + ' ' + (v.action || 'ADD COLUMN') + ' ' + (v.details || ''));
+            break;
+          case 'DROP_TABLE':
+            lines.push('DROP TABLE IF EXISTS ' + (v.table || ''));
+            break;
+          case 'CREATE_INDEX':
+            lines.push('CREATE INDEX IF NOT EXISTS ' + (v.name || 'idx') + ' ON ' + (v.table || '') + ' (' + (v.column || '') + ')');
+            break;
+          case 'DROP_INDEX':
+            lines.push('DROP INDEX IF EXISTS ' + (v.name || 'idx'));
+            break;
         }
       }
 
@@ -2622,6 +2808,13 @@
         blocks.push({ id: genId(), type: 'SELECT', values: { columns: 'dept_id, COUNT(*) AS emp_count, AVG(salary) AS avg_salary', table: 'employees' } });
         blocks.push({ id: genId(), type: 'GROUP_BY', values: { columns: 'dept_id' } });
         blocks.push({ id: genId(), type: 'HAVING', values: { condition: 'COUNT(*) > 1' } });
+      } else if (key === 'top_limit') {
+        blocks.push({ id: genId(), type: 'SELECT', values: { columns: 'name, salary', table: 'employees' } });
+        blocks.push({ id: genId(), type: 'ORDER_BY', values: { column: 'salary', dir: 'DESC' } });
+        blocks.push({ id: genId(), type: 'LIMIT', values: { limit: '3', offset: '0' } });
+      } else if (key === 'subquery_demo') {
+        blocks.push({ id: genId(), type: 'SELECT', values: { columns: 'name, salary', table: 'employees' } });
+        blocks.push({ id: genId(), type: 'SUBQUERY', values: { column: 'id', sub_col: 'employee_id', sub_table: 'orders', sub_where: "status = 'مكتمل'" } });
       }
       renderBlocks();
       updateEditor();
