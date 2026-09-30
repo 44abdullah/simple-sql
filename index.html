@@ -549,7 +549,30 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior-y: contain;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
       padding: 2px 0 6px;
+    }
+
+    .accordion-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .accordion-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .accordion-body::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: var(--radius-full);
+    }
+
+    .accordion-body::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
     }
 
     .accordion-body.collapsed {
@@ -2831,6 +2854,23 @@
 
         const body = document.createElement('div');
         body.className = 'accordion-body' + (section.open || q ? '' : ' collapsed');
+
+        body.addEventListener('wheel', function (e) {
+          if (body.classList.contains('collapsed')) return;
+
+          const maxScroll = body.scrollHeight - body.clientHeight;
+          const atTop = body.scrollTop <= 0;
+          const atBottom = body.scrollTop >= maxScroll - 1;
+          const movingUp = e.deltaY < 0;
+          const movingDown = e.deltaY > 0;
+
+          // Keep wheel scrolling inside the hovered section. At either edge,
+          // stop instead of chaining the scroll to the command library.
+          e.stopPropagation();
+          if (maxScroll <= 0 || (movingUp && atTop) || (movingDown && atBottom)) {
+            e.preventDefault();
+          }
+        }, { passive: false });
 
         hdr.addEventListener('click', function () {
           section.open = !section.open;
