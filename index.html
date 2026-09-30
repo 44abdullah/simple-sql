@@ -405,6 +405,7 @@
     #mainArea {
       display: grid;
       grid-template-columns: 270px 1fr 360px;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -414,6 +415,7 @@
       border-left: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -469,7 +471,10 @@
 
     #paletteContainer {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
       padding: 10px;
       display: flex;
       flex-direction: column;
