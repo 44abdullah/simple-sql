@@ -1833,6 +1833,49 @@
         ]
       },
 
+      // Aggregation Functions
+      AGGREGATE: {
+        title: 'AGGREGATE (دالة تجميع)',
+        fields: [
+          { key: 'func', label: 'الدالة التجميعية', type: 'select', options: ['COUNT(*)', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN'], default: 'COUNT(*)' },
+          { key: 'column', label: 'العمود المستهدف (إن وجد)', type: 'text', default: 'salary' },
+          { key: 'alias', label: 'التسمية المستعارة (AS)', type: 'text', default: 'total_result' },
+          { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'employees' }
+        ]
+      },
+      COUNT_FUNC: {
+        title: 'COUNT(*)',
+        fields: [
+          { key: 'alias', label: 'التسمية المستعارة (AS)', type: 'text', default: 'total_rows' },
+          { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'employees' }
+        ]
+      },
+      SUM_FUNC: {
+        title: 'SUM()',
+        fields: [
+          { key: 'column', label: 'العمود العددي/المالي', type: 'text', default: 'salary' },
+          { key: 'alias', label: 'التسمية المستعارة (AS)', type: 'text', default: 'total_salary' },
+          { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'employees' }
+        ]
+      },
+      AVG_FUNC: {
+        title: 'AVG()',
+        fields: [
+          { key: 'column', label: 'العمود العددي', type: 'text', default: 'salary' },
+          { key: 'alias', label: 'التسمية المستعارة (AS)', type: 'text', default: 'avg_salary' },
+          { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'employees' }
+        ]
+      },
+      MAX_MIN: {
+        title: 'MAX() / MIN()',
+        fields: [
+          { key: 'func', label: 'الدالة', type: 'select', options: ['MAX', 'MIN'], default: 'MAX' },
+          { key: 'column', label: 'العمود', type: 'text', default: 'salary' },
+          { key: 'alias', label: 'التسمية المستعارة (AS)', type: 'text', default: 'extreme_salary' },
+          { key: 'table', label: 'الجدول الرئيسي', type: 'dynamic_table', default: 'employees' }
+        ]
+      },
+
       // TCL Transactions
       BEGIN: { title: 'BEGIN TRANSACTION', fields: [] },
       COMMIT: { title: 'COMMIT', fields: [] },
@@ -1846,13 +1889,14 @@
       WHERE: '#ec4899', WHERE_LIKE: '#db2777', WHERE_BETWEEN: '#be185d', WHERE_IN: '#9d174d',
       JOIN: '#6366f1', GROUP_BY: '#06b6d4', HAVING: '#f472b6', ORDER_BY: '#94a3b8',
       LIMIT: '#eab308', UNION: '#a855f7', SUBQUERY: '#3b82f6',
+      AGGREGATE: '#f59e0b', COUNT_FUNC: '#eab308', SUM_FUNC: '#10b981', AVG_FUNC: '#3b82f6', MAX_MIN: '#8b5cf6',
       BEGIN: '#22c55e', COMMIT: '#16a34a', ROLLBACK: '#ef4444'
     };
 
     const BLOCK_ORDER = {
       BEGIN: -1,
       CREATE_TABLE: 0, ALTER_TABLE: 0, DROP_TABLE: 0, CREATE_INDEX: 0, DROP_INDEX: 0,
-      SELECT: 1, SELECT_DISTINCT: 1, INSERT: 1, UPDATE: 1, DELETE: 1,
+      SELECT: 1, SELECT_DISTINCT: 1, AGGREGATE: 1, COUNT_FUNC: 1, SUM_FUNC: 1, AVG_FUNC: 1, MAX_MIN: 1, INSERT: 1, UPDATE: 1, DELETE: 1,
       JOIN: 3,
       WHERE: 4, WHERE_LIKE: 4, WHERE_BETWEEN: 4, WHERE_IN: 4, SUBQUERY: 4,
       GROUP_BY: 5, HAVING: 6,
@@ -1898,14 +1942,24 @@
         ]
       },
       {
-        id: 'subqueries', label: '4. الربط والاستعلامات الفرعية', open: false,
+        id: 'aggregation', label: '4. دوال التجميع والحساب (Aggregation)', open: true,
+        items: [
+          { type: 'AGGREGATE', label: 'دالة تجميع متقدمة', tag: 'Agg' },
+          { type: 'COUNT_FUNC', label: 'COUNT(*) - حساب العدد', tag: 'Agg' },
+          { type: 'SUM_FUNC', label: 'SUM() - مجموع القيم', tag: 'Agg' },
+          { type: 'AVG_FUNC', label: 'AVG() - متوسط القيم', tag: 'Agg' },
+          { type: 'MAX_MIN', label: 'MAX() / MIN() - الأقصى/الأدنى', tag: 'Agg' }
+        ]
+      },
+      {
+        id: 'subqueries', label: '5. الربط والاستعلامات الفرعية', open: false,
         items: [
           { type: 'UNION', label: 'UNION / UNION ALL', tag: 'Combine' },
           { type: 'SUBQUERY', label: 'SUBQUERY (IN)', tag: 'Nested' }
         ]
       },
       {
-        id: 'tcl', label: '5. المعاملات (TCL Transactions)', open: false,
+        id: 'tcl', label: '6. المعاملات (TCL Transactions)', open: false,
         items: [
           { type: 'BEGIN', label: 'BEGIN TRANSACTION', tag: 'TCL' },
           { type: 'COMMIT', label: 'COMMIT', tag: 'TCL' },
@@ -1982,7 +2036,7 @@
       });
 
       const joinBlocks = sorted.filter(function (b) { return b.type === 'JOIN'; });
-      const hasSelect = sorted.some(function (b) { return b.type === 'SELECT' || b.type === 'SELECT_DISTINCT'; });
+      const hasSelect = sorted.some(function (b) { return ['SELECT', 'SELECT_DISTINCT', 'AGGREGATE', 'COUNT_FUNC', 'SUM_FUNC', 'AVG_FUNC', 'MAX_MIN'].includes(b.type); });
       const lines = [];
 
       for (let i = 0; i < sorted.length; i++) {
@@ -2013,6 +2067,28 @@
               const jb = joinBlocks[j];
               lines.push((jb.values.type || 'INNER JOIN') + ' ' + (jb.values.table || '') + ' ON ' + (jb.values.on || ''));
             }
+            break;
+          case 'AGGREGATE':
+            let aggExpr = v.func === 'COUNT(*)' ? 'COUNT(*)' : (v.func || 'COUNT') + '(' + (v.column || '*') + ')';
+            if (v.alias) aggExpr += ' AS ' + v.alias;
+            lines.push('SELECT ' + aggExpr);
+            lines.push('FROM ' + (v.table || 'employees'));
+            break;
+          case 'COUNT_FUNC':
+            lines.push('SELECT COUNT(*) AS ' + (v.alias || 'total_rows'));
+            lines.push('FROM ' + (v.table || 'employees'));
+            break;
+          case 'SUM_FUNC':
+            lines.push('SELECT SUM(' + (v.column || 'salary') + ') AS ' + (v.alias || 'total_salary'));
+            lines.push('FROM ' + (v.table || 'employees'));
+            break;
+          case 'AVG_FUNC':
+            lines.push('SELECT AVG(' + (v.column || 'salary') + ') AS ' + (v.alias || 'avg_salary'));
+            lines.push('FROM ' + (v.table || 'employees'));
+            break;
+          case 'MAX_MIN':
+            lines.push('SELECT ' + (v.func || 'MAX') + '(' + (v.column || 'salary') + ') AS ' + (v.alias || 'extreme_salary'));
+            lines.push('FROM ' + (v.table || 'employees'));
             break;
           case 'JOIN':
             if (!hasSelect) lines.push('-- ملاحظة: يتطلب JOIN وجود SELECT أولاً');
