@@ -807,6 +807,7 @@
     #editorPanel {
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
       background: rgba(10, 16, 30, 0.9);
     }
@@ -867,6 +868,10 @@
 
     #codeEditor {
       flex: 1;
+      min-height: 0;
+      overflow: auto;
+      scrollbar-gutter: stable;
+      white-space: pre;
       background: transparent;
       color: #e2e8f0;
       border: none;
@@ -1641,7 +1646,7 @@
               <span class="editor-hint">Ctrl+Enter للتنفيذ</span>
             </div>
           </div>
-          <textarea id="codeEditor" spellcheck="false"
+          <textarea id="codeEditor" spellcheck="false" wrap="off"
             placeholder="-- سيظهر كود SQL هنا تلقائياً عند إضافة وتنسيق الكتل...&#10;-- يمكنك أيضاً تعديل الكود مباشرة هنا والتنفيذ"></textarea>
         </div>
       </div>
