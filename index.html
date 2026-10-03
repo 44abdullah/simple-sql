@@ -8,9 +8,6 @@
   <meta name="description"
     content="أداة تعليمية تفاعلية حديثة لتعلّم وبناء استعلامات SQL بالسحب والإفلات بالكامل في المتصفح." />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="logo.png" />
-
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -223,18 +220,12 @@
       width: 36px;
       height: 36px;
       border-radius: var(--radius-md);
-      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #fff;
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-      flex-shrink: 0;
-    }
-
-    .brand-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
     }
 
     .brand-title {
@@ -409,86 +400,13 @@
     }
 
     /* =============================================
-       MAIN CONTENT AREA & RESIZERS / SLIDERS
+       MAIN CONTENT AREA
        ============================================= */
     #mainArea {
       display: grid;
       grid-template-columns: 270px 1fr 360px;
       min-height: 0;
-    }
-
-    .resizer-v {
-      width: 6px;
-      cursor: col-resize;
-      background: rgba(255, 255, 255, 0.03);
-      border-left: 1px solid var(--border-subtle);
-      border-right: 1px solid var(--border-subtle);
-      transition: background 0.15s ease, box-shadow 0.15s ease;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-    .resizer-v:hover, .resizer-v.dragging {
-      background: var(--accent-cyan);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
-    }
-
-    .resizer-h {
-      height: 6px;
-      cursor: row-resize;
-      background: rgba(255, 255, 255, 0.03);
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
-      transition: background 0.15s ease, box-shadow 0.15s ease;
-      z-index: 10;
-      flex-shrink: 0;
-    }
-    .resizer-h:hover, .resizer-h.dragging {
-      background: var(--accent-cyan);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
-    }
-
-    /* Range Sliders */
-    .slider-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-    }
-    .field-slider {
-      flex: 1;
-      -webkit-appearance: none;
-      appearance: none;
-      height: 6px;
-      border-radius: var(--radius-full);
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--border-subtle);
-      outline: none;
-      cursor: pointer;
-    }
-    .field-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-      transition: transform 0.15s ease;
-    }
-    .field-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.25);
-    }
-    .slider-val-badge {
-      font-size: 11px;
-      font-family: var(--font-code);
-      color: var(--accent-cyan);
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 1px 7px;
-      border-radius: 4px;
-      min-width: 32px;
-      text-align: center;
+      overflow: hidden;
     }
 
     /* SIDEBAR (PALETTE) */
@@ -712,7 +630,7 @@
     /* CENTER WORKSPACE & EDITOR */
     #centerCol {
       display: grid;
-      grid-template-rows: 1fr 6px 240px;
+      grid-template-rows: 1fr 240px;
       overflow: hidden;
       border-left: 1px solid var(--border-subtle);
     }
@@ -1601,7 +1519,7 @@
     <div class="modal-card welcome-card">
       <div class="modal-header">
         <div class="modal-title">
-          <div class="brand-icon"><img src="logo.png" alt="Simple SQL Logo" /></div>
+          <div class="brand-icon">⚡</div>
            Simple SQL
         </div>
         <button class="modal-close" id="btnCloseWelcome">✕</button>
@@ -1686,7 +1604,7 @@
     <header id="header">
       <div class="brand" id="logoBtn">
         <div class="brand-icon">
-          <img src="logo.png" alt="Simple SQL Logo" />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5c0 1.66 4 3 9 3s9-1.34 9-3"/><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"/></svg>
         </div>
         <div class="brand-title">Simple <span>SQL</span></div>
       </div>
@@ -1750,8 +1668,6 @@
         <div id="paletteContainer"></div>
       </aside>
 
-      <div class="resizer-v" id="resizerSidebar" title="اسحب لتغيير عرض القائمة"></div>
-
       <!-- CENTER COL -->
       <div id="centerCol">
         <div id="workspace">
@@ -1773,8 +1689,6 @@
           </div>
         </div>
 
-        <div class="resizer-h" id="resizerCenter" title="اسحب لتغيير ارتفاع المحرر"></div>
-
         <div id="editorPanel">
           <div id="editorHeader">
             <h2>📝 محرر SQL المباشر</h2>
@@ -1788,8 +1702,6 @@
             placeholder="-- سيظهر كود SQL هنا تلقائياً عند إضافة وتنسيق الكتل...&#10;-- يمكنك أيضاً تعديل الكود مباشرة هنا والتنفيذ"></textarea>
         </div>
       </div>
-
-      <div class="resizer-v" id="resizerRight" title="اسحب لتغيير عرض اللوحة اليمنى"></div>
 
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
@@ -2548,59 +2460,6 @@
             lblC.appendChild(document.createTextNode(c));
             menu.appendChild(lblC);
           });
-        } else if (field.slider) {
-          const container = document.createElement('div');
-          container.style.display = 'flex';
-          container.style.flexDirection = 'column';
-          container.style.gap = '4px';
-
-          input = document.createElement('input');
-          input.type = 'text';
-          input.value = (block.values[field.key] !== undefined) ? block.values[field.key] : field.default;
-
-          const sliderWrap = document.createElement('div');
-          sliderWrap.className = 'slider-wrap';
-
-          const rangeInput = document.createElement('input');
-          rangeInput.type = 'range';
-          rangeInput.className = 'field-slider';
-          rangeInput.min = field.min !== undefined ? field.min : 0;
-          rangeInput.max = field.max !== undefined ? field.max : 100;
-          rangeInput.step = field.step !== undefined ? field.step : 1;
-          rangeInput.value = parseFloat(input.value) || rangeInput.min;
-
-          const valBadge = document.createElement('span');
-          valBadge.className = 'slider-val-badge';
-          valBadge.textContent = rangeInput.value;
-
-          rangeInput.addEventListener('input', function (e) {
-            input.value = e.target.value;
-            valBadge.textContent = e.target.value;
-            block.values[field.key] = e.target.value;
-            updateEditor();
-          });
-
-          input.addEventListener('input', function (e) {
-            block.values[field.key] = e.target.value;
-            const num = parseFloat(e.target.value);
-            if (!isNaN(num)) {
-              rangeInput.value = num;
-              valBadge.textContent = num;
-            }
-            updateEditor();
-          });
-
-          sliderWrap.appendChild(rangeInput);
-          sliderWrap.appendChild(valBadge);
-
-          container.appendChild(input);
-          container.appendChild(sliderWrap);
-
-          container.addEventListener('mousedown', function (e) { e.stopPropagation(); });
-          row.appendChild(lbl);
-          row.appendChild(container);
-          fieldsDiv.appendChild(row);
-          return;
         } else {
           input = document.createElement('input');
           input.type = 'text';
