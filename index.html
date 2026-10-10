@@ -1826,9 +1826,126 @@
       border: 1px solid rgba(56, 189, 248, 0.25);
     }
 
-    .pipeline-arrow {
-      color: var(--text-dim);
+    /* =============================================
+       EXECUTION STATUS BANNER (PREVIEW VS SAVED)
+       ============================================= */
+    .execution-status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      margin: 10px 14px 4px;
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+      transition: var(--transition);
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .execution-status-banner.preview-mode {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.12);
+    }
+
+    .execution-status-banner.saved-mode {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+    }
+
+    .execution-status-banner.error-mode {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.1);
+    }
+
+    .esb-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .esb-badge {
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .esb-badge.preview {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      animation: pulsePreviewGlow 2.5s infinite ease-in-out;
+    }
+
+    .esb-badge.saved {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .esb-badge.error {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--accent-rose);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+    }
+
+    @keyframes pulsePreviewGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.3); }
+      50% { box-shadow: 0 0 12px 2px rgba(56, 189, 248, 0.5); }
+    }
+
+    .esb-text {
+      color: var(--text-main);
       font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .esb-text b {
+      color: var(--accent-amber);
+    }
+
+    .esb-run-btn {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: var(--font-ui);
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .esb-run-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+    }
+
+    .preview-table-tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      margin-right: 8px;
     }
 
     /* RESPONSIVE */
@@ -2117,17 +2234,22 @@
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
         <div class="tab-bar">
-          <button class="tab-btn active" data-tab="previewTab">👁️ المعاينة والشرح</button>
-          <button class="tab-btn" data-tab="resultsTab">📊 النتائج</button>
+          <button class="tab-btn active" data-tab="resultsTab">📊 جدول النتائج والمعاينة</button>
+          <button class="tab-btn" data-tab="previewTab">💡 الشرح والمخطط</button>
           <button class="tab-btn" data-tab="schemaTab">🗂️ المخطط</button>
           <button class="tab-btn" data-tab="logTab">📜 السجل</button>
         </div>
 
-        <div class="tab-content active" id="previewTab">
-          <div id="previewTabInner"></div>
-        </div>
-
-        <div class="tab-content" id="resultsTab">
+        <div class="tab-content active" id="resultsTab">
+          <div id="executionBanner" class="execution-status-banner preview-mode">
+            <div class="esb-left">
+              <span class="esb-badge preview" id="esbBadge">👁️ معاينة مباشرة (لم يُحفظ بعد)</span>
+              <span class="esb-text" id="esbText">النتائج تظهر لك كأنها نُفذت — لن يتم حفظ أي تعديل في قاعدة البيانات حتى تضغط تنفيذ</span>
+            </div>
+            <button class="esb-run-btn" id="btnConfirmRunBanner">
+              🚀 اعتماد وحفظ التنفيذ
+            </button>
+          </div>
           <div id="resultsMeta">
             <span id="rowCountLabel">لا توجد نتائج بعْد</span>
             <button class="export-btn" id="btnExportCSV" style="display:none">⬇️ تصدير CSV</button>
@@ -2138,6 +2260,10 @@
               <p>قم بتنفيذ استعلام لرؤية الجدول والنتائج هنا</p>
             </div>
           </div>
+        </div>
+
+        <div class="tab-content" id="previewTab">
+          <div id="previewTabInner"></div>
         </div>
 
         <div class="tab-content" id="schemaTab">
@@ -2639,7 +2765,8 @@
       document.getElementById('codeEditor').value = sql;
       updateBlockCount();
       updateLivePreview();
-      switchTab('previewTab');
+      runDryRunSimulation(sql);
+      switchTab('resultsTab');
     }
 
     function updateBlockCount() {
@@ -3620,6 +3747,112 @@
       openModal('previewModal');
     }
 
+    /* =============================================
+       SIMULATION & PERSISTENCE ENGINE
+       ============================================= */
+    let isCurrentResultPreview = true;
+
+    function updateExecutionBanner(mode, text) {
+      const banner = document.getElementById('executionBanner');
+      const badge = document.getElementById('esbBadge');
+      const textEl = document.getElementById('esbText');
+      const btn = document.getElementById('btnConfirmRunBanner');
+      if (!banner || !badge || !textEl) return;
+
+      banner.className = 'execution-status-banner ' + (mode === 'saved' ? 'saved-mode' : (mode === 'error' ? 'error-mode' : 'preview-mode'));
+
+      if (mode === 'saved') {
+        badge.className = 'esb-badge saved';
+        badge.textContent = '✅ نُفّذ وحُفظ رسمياً';
+        textEl.innerHTML = text || 'تم تنفيذ الاستعلام وحفظ كافة التغييرات في قاعدة البيانات بنجاح!';
+        if (btn) btn.style.display = 'none';
+      } else if (mode === 'error') {
+        badge.className = 'esb-badge error';
+        badge.textContent = '⚠️ تنبيه في الاستعلام';
+        textEl.innerHTML = text || 'تحقق من صحة الاستعلام';
+        if (btn) btn.style.display = 'none';
+      } else {
+        badge.className = 'esb-badge preview';
+        badge.textContent = '👁️ معاينة مباشرة (لم يُحفظ بعد)';
+        textEl.innerHTML = text || 'النتائج تظهر لك كأنها نُفذت — <b>لم يتم حفظ أي تعديل في قاعدة البيانات حتى تضغط تنفيذ</b>';
+        if (btn) {
+          btn.style.display = 'inline-flex';
+          btn.innerHTML = '🚀 اعتماد وحفظ التنفيذ';
+        }
+      }
+    }
+
+    function runDryRunSimulation(rawSql) {
+      if (!db) return;
+      const cleanSql = cleanSQLComments(rawSql || '').trim();
+      if (!cleanSql) {
+        lastResultData = null;
+        const empty = document.getElementById('resultsEmpty');
+        if (empty) empty.style.display = 'flex';
+        document.getElementById('resultsTableWrap').querySelectorAll('table').forEach(t => t.remove());
+        document.getElementById('rowCountLabel').textContent = 'لا توجد نتائج بعْد';
+        document.getElementById('btnExportCSV').style.display = 'none';
+        updateExecutionBanner('preview', 'أضف كود استعلام أو اسحب كتلة لمعاينة النتائج كأنها نُفذت دون حفظ');
+        return;
+      }
+
+      const analysis = analyzeQuery(cleanSql);
+      const statements = cleanSql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+      const firstStmt = statements[0];
+
+      if (/^(SELECT|PRAGMA)/i.test(firstStmt)) {
+        try {
+          const res = db.exec(firstStmt);
+          if (res.length > 0) {
+            displayResults(res[0], true);
+            updateExecutionBanner('preview', `معاينة استعلام <b>SELECT</b>: تم جلب <b>${res[0].values.length}</b> صفاً كأنها نُفذت — <b>لم يتم الحفظ بعد</b>`);
+          } else {
+            displayResults({ columns: ['الحالة'], values: [['لا توجد بيانات مطابقة للشروط']] }, true);
+            updateExecutionBanner('preview', 'معاينة مباشرة: الاستعلام سليم ولكن لا توجد صفوف مطابقة للشروط');
+          }
+        } catch (err) {
+          showErrorState(translateError(err.message));
+          updateExecutionBanner('error', `خطأ في صياغة الاستعلام: ${translateError(err.message)}`);
+        }
+      } else {
+        // Mutation query (INSERT / UPDATE / DELETE / DDL)
+        // Run inside temporary SQLite SAVEPOINT to show what the table looks like, then ROLLBACK!
+        try {
+          db.exec("SAVEPOINT sandbox_dry_run;");
+          let affected = 0;
+          for (let stmt of statements) {
+            db.run(stmt);
+            affected++;
+          }
+          let targetTable = analysis.targetTable;
+          if (!targetTable || targetTable === '-' || targetTable === 'غير محدد') {
+            targetTable = 'employees';
+          }
+          let afterRes = [];
+          try {
+            afterRes = db.exec(`SELECT * FROM ${targetTable} LIMIT 100;`);
+          } catch(e) {}
+
+          if (afterRes.length > 0) {
+            displayResults(afterRes[0], true);
+            const opName = analysis.type === 'UPDATE' ? 'التعديل' : (analysis.type === 'DELETE' ? 'الحذف' : (analysis.type === 'INSERT' ? 'الإضافة' : 'العملية'));
+            updateExecutionBanner('preview', `معاينة شكل جدول <b>${targetTable}</b> بعد ${opName} (${affected} صف متأثر) — <b>لم يتم حفظ أي تغيير في قاعدة البيانات حتى تضغط تنفيذ</b>`);
+          } else {
+            showSuccessState();
+            updateExecutionBanner('preview', `معاينة تنفيذ ${analysis.type} ناجحة — لم يتم الحفظ بعد`);
+          }
+        } catch (err) {
+          showErrorState(translateError(err.message));
+          updateExecutionBanner('error', `خطأ في الاستعلام: ${translateError(err.message)}`);
+        } finally {
+          // ALWAYS ROLLBACK TO ENSURE ZERO CHANGES ARE PERSISTED IN PREVIEW!
+          try {
+            db.exec("ROLLBACK TO sandbox_dry_run; RELEASE sandbox_dry_run;");
+          } catch (e) {}
+        }
+      }
+    }
+
     /* Execution */
     function runQuery() {
       const sql = document.getElementById('codeEditor').value.trim();
@@ -3627,11 +3860,7 @@
         showToast('لا يوجد استعلام للتنفيذ', 'warn');
         return;
       }
-      if (previewEnabled) {
-        openExecutionPreviewModal(sql);
-      } else {
-        executeActualQuery(sql);
-      }
+      executeActualQuery(sql);
     }
 
     function executeActualQuery(sql) {
@@ -3640,7 +3869,7 @@
         showToast('لا يوجد استعلام للتنفيذ', 'warn');
         return;
       }
-      addLog('تنفيذ: ' + sql.substring(0, 90) + (sql.length > 90 ? '...' : ''), 'info');
+      addLog('تنفيذ وحفظ: ' + sql.substring(0, 90) + (sql.length > 90 ? '...' : ''), 'info');
       try {
         const statements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0);
         let lastResult = null;
@@ -3658,18 +3887,21 @@
         }
 
         if (lastResult) {
-          displayResults(lastResult[0]);
-          addLog('تم إرجاع ' + lastResult[0].values.length + ' صفاً بنجاح', 'success');
-          showToast('✅ تم إرجاع ' + lastResult[0].values.length + ' صفاً بنجاح', 'success');
+          displayResults(lastResult[0], false);
+          addLog('تم إرجاع ' + lastResult[0].values.length + ' صفاً وحفظ النتائج بنجاح', 'success');
+          showToast('✅ تم تنفيذ الاستعلام وحفظه بنجاح', 'success');
+          updateExecutionBanner('saved', `تم تنفيذ الاستعلام بنجاح وحفظ كافة النتائج (${lastResult[0].values.length} صفاً).`);
         } else if (affectedTotal > 0) {
           showSuccessState();
           renderSchema();
-          addLog('تم تنفيذ ' + affectedTotal + ' عملية تعديل بنجاح', 'success');
-          showToast('✅ تم تنفيذ ' + affectedTotal + ' عملية بنجاح', 'success');
+          addLog('تم تنفيذ ' + affectedTotal + ' عملية وحفظها في قاعدة البيانات بنجاح', 'success');
+          showToast('✅ تم تنفيذ ' + affectedTotal + ' عملية وحفظها بنجاح', 'success');
+          updateExecutionBanner('saved', `تم تنفيذ ${affectedTotal} عملية وتطبيق كافة التعديلات في قاعدة البيانات رسمياً!`);
         } else {
           showSuccessState();
-          addLog('تم تنفيذ الاستعلام بنجاح', 'success');
-          showToast('✅ تم تنفيذ الاستعلام بنجاح', 'success');
+          addLog('تم تنفيذ الاستعلام وحفظه بنجاح', 'success');
+          showToast('✅ تم تنفيذ الاستعلام وحفظه بنجاح', 'success');
+          updateExecutionBanner('saved', 'تم تنفيذ الاستعلام وحفظ التغييرات في قاعدة البيانات بنجاح!');
         }
         updateLivePreview();
       } catch (err) {
@@ -3677,6 +3909,7 @@
         addLog('خطأ: ' + arabicMsg, 'error');
         showToast('❌ ' + arabicMsg, 'error', 4000);
         showErrorState(arabicMsg);
+        updateExecutionBanner('error', `خطأ: ${arabicMsg}`);
       }
     }
 
@@ -3703,8 +3936,9 @@
     }
 
     /* Results Table */
-    function displayResults(result) {
+    function displayResults(result, isPreview = false) {
       lastResultData = { columns: result.columns, values: result.values };
+      isCurrentResultPreview = isPreview;
       sortState = { col: null, asc: true };
       renderResultsTable();
       switchTab('resultsTab');
@@ -3773,7 +4007,12 @@
       table.appendChild(tbody);
       wrap.appendChild(table);
 
-      document.getElementById('rowCountLabel').textContent = 'عدد الصفوف: ' + values.length;
+      const countLabel = document.getElementById('rowCountLabel');
+      if (isCurrentResultPreview) {
+        countLabel.innerHTML = 'عدد الصفوف: ' + values.length + ' <span class="preview-table-tag">👁️ معاينة تجريبية (لم يُحفظ بعد)</span>';
+      } else {
+        countLabel.innerHTML = 'عدد الصفوف: ' + values.length + ' <span style="color:var(--accent-emerald); font-weight:700; margin-right:8px;">✅ محفوظ في قاعدة البيانات</span>';
+      }
       document.getElementById('btnExportCSV').style.display = 'block';
     }
 
@@ -4183,12 +4422,25 @@
           openExecutionPreviewModal(sql);
         });
 
-        /* Code Editor Live Preview */
+        const btnBanner = document.getElementById('btnConfirmRunBanner');
+        if (btnBanner) {
+          btnBanner.addEventListener('click', function () {
+            const sql = document.getElementById('codeEditor').value.trim();
+            executeActualQuery(sql);
+          });
+        }
+
+        /* Code Editor Live Preview & Dry Run */
         document.getElementById('codeEditor').addEventListener('input', function () {
+          const sql = document.getElementById('codeEditor').value;
           updateLivePreview();
-          switchTab('previewTab');
+          runDryRunSimulation(sql);
         });
-        document.getElementById('codeEditor').addEventListener('keyup', updateLivePreview);
+        document.getElementById('codeEditor').addEventListener('keyup', function () {
+          const sql = document.getElementById('codeEditor').value;
+          updateLivePreview();
+          runDryRunSimulation(sql);
+        });
 
         /* Welcome Modal */
         document.getElementById('btnStartWelcome').addEventListener('click', function () {
@@ -4264,7 +4516,8 @@
         }
 
         updateLivePreview();
-        switchTab('previewTab');
+        runDryRunSimulation(document.getElementById('codeEditor').value);
+        switchTab('resultsTab');
         addLog('Simple SQL جاهز ومتصل بالكامل 🚀', 'success');
 
       } catch (err) {
