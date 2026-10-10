@@ -404,7 +404,7 @@
        ============================================= */
     #mainArea {
       display: grid;
-      grid-template-columns: 270px 1fr 360px;
+      grid-template-columns: 270px 1fr minmax(380px, 420px);
       min-height: 0;
       overflow: hidden;
     }
@@ -947,9 +947,10 @@
     #rightPanel {
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: clip;
       background: rgba(15, 23, 42, 0.6);
       border-right: 1px solid var(--border-subtle);
+      min-width: 0;
     }
 
     .tab-bar {
@@ -994,13 +995,14 @@
       display: none;
       flex: 1;
       flex-direction: column;
-      overflow: hidden;
       min-height: 0;
+      overflow: clip;
     }
 
     .tab-content.active {
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
 
     #resultsMeta {
@@ -1035,11 +1037,13 @@
     #resultsTableWrap {
       flex: 1;
       overflow: auto;
-      overflow-x: auto;
-      direction: ltr;
       min-height: 0;
-      /* Allow the table to be wider than the panel */
+      min-width: 0;
       -webkit-overflow-scrolling: touch;
+      /* Explicitly set both axes */
+      overflow-x: scroll;
+      overflow-y: auto;
+      direction: ltr;
     }
 
     #resultsTableWrap table {
