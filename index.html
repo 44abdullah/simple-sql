@@ -1948,6 +1948,29 @@
       box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
     }
 
+    /* Confirm-run footer below the table */
+    #confirmRunFooter {
+      flex-shrink: 0;
+      border-top: 1px solid rgba(56, 189, 248, 0.3);
+      background: rgba(56, 189, 248, 0.06);
+    }
+
+    #confirmRunFooter .esb-run-btn {
+      width: 100%;
+      border-radius: 0;
+      padding: 13px 20px;
+      font-size: 13.5px;
+      justify-content: center;
+      box-shadow: none;
+      letter-spacing: 0.3px;
+    }
+
+    #confirmRunFooter .esb-run-btn:hover {
+      transform: none;
+      opacity: 0.9;
+      background: linear-gradient(135deg, #56caf8, #818cf8);
+    }
+
     .preview-table-tag {
       font-size: 10px;
       padding: 2px 7px;
@@ -2251,26 +2274,33 @@
         </div>
 
         <div class="tab-content active" id="resultsTab">
+          <!-- Top status banner (badge + text only, no button) -->
           <div id="executionBanner" class="execution-status-banner preview-mode">
             <div class="esb-left">
               <span class="esb-badge preview" id="esbBadge">👁️ معاينة مباشرة (لم يُحفظ بعد)</span>
               <span class="esb-text" id="esbText">النتائج تظهر لك كأنها نُفذت — لن يتم حفظ أي تعديل في قاعدة البيانات حتى تضغط تنفيذ</span>
             </div>
-            <button class="esb-run-btn" id="btnConfirmRunBanner">
-              🚀 اعتماد وحفظ التنفيذ
-            </button>
           </div>
+          <!-- Row count + export -->
           <div id="resultsMeta">
             <span id="rowCountLabel">لا توجد نتائج بعْد</span>
             <button class="export-btn" id="btnExportCSV" style="display:none">⬇️ تصدير CSV</button>
           </div>
+          <!-- Scrollable table area -->
           <div id="resultsTableWrap">
             <div class="empty-state" id="resultsEmpty">
               <div class="es-icon">📋</div>
               <p>قم بتنفيذ استعلام لرؤية الجدول والنتائج هنا</p>
             </div>
           </div>
+          <!-- Confirm-run footer (shown only in preview mode) -->
+          <div id="confirmRunFooter" style="display:none;">
+            <button class="esb-run-btn" id="btnConfirmRunBanner" style="width:100%; border-radius:0; padding:12px 20px; font-size:13px; justify-content:center;">
+              🚀 اعتماد وحفظ التنفيذ
+            </button>
+          </div>
         </div>
+
 
         <div class="tab-content" id="previewTab">
           <div id="previewTabInner"></div>
@@ -3766,7 +3796,7 @@
       const banner = document.getElementById('executionBanner');
       const badge = document.getElementById('esbBadge');
       const textEl = document.getElementById('esbText');
-      const btn = document.getElementById('btnConfirmRunBanner');
+      const footer = document.getElementById('confirmRunFooter');
       if (!banner || !badge || !textEl) return;
 
       banner.className = 'execution-status-banner ' + (mode === 'saved' ? 'saved-mode' : (mode === 'error' ? 'error-mode' : 'preview-mode'));
@@ -3775,20 +3805,17 @@
         badge.className = 'esb-badge saved';
         badge.textContent = '✅ نُفّذ وحُفظ رسمياً';
         textEl.innerHTML = text || 'تم تنفيذ الاستعلام وحفظ كافة التغييرات في قاعدة البيانات بنجاح!';
-        if (btn) btn.style.display = 'none';
+        if (footer) footer.style.display = 'none';
       } else if (mode === 'error') {
         badge.className = 'esb-badge error';
         badge.textContent = '⚠️ تنبيه في الاستعلام';
         textEl.innerHTML = text || 'تحقق من صحة الاستعلام';
-        if (btn) btn.style.display = 'none';
+        if (footer) footer.style.display = 'none';
       } else {
         badge.className = 'esb-badge preview';
         badge.textContent = '👁️ معاينة مباشرة (لم يُحفظ بعد)';
         textEl.innerHTML = text || 'النتائج تظهر لك كأنها نُفذت — <b>لم يتم حفظ أي تعديل في قاعدة البيانات حتى تضغط تنفيذ</b>';
-        if (btn) {
-          btn.style.display = 'inline-flex';
-          btn.innerHTML = '🚀 اعتماد وحفظ التنفيذ';
-        }
+        if (footer) footer.style.display = 'block';
       }
     }
 
