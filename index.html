@@ -1982,15 +1982,16 @@
           <div class="preview-sample-table-wrap" id="previewModalSampleTable"></div>
         </div>
       </div>
-      <div class="modal-actions" style="align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 4px;">
-        <label class="preview-modal-footer-options">
-          <input type="checkbox" id="chkPreviewAlways" checked />
-          <span>إظهار هذه المعاينة دائماً قبل التنفيذ</span>
-        </label>
-        <button class="btn-modal-ghost" id="btnCancelPreviewModal">إلغاء وتعديل</button>
-        <button class="btn-modal-primary" id="btnConfirmRunPreview">
-          🚀 تأكيد ومتابعة التنفيذ
-        </button>
+      <div class="modal-actions" style="align-items: center; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-top: 4px;">
+        <span style="font-size:12px; color:var(--accent-cyan); display:flex; align-items:center; gap:6px;">
+          <span>⚡</span> معاينة تلقائية ذكية قبل كل تنفيذ
+        </span>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-modal-ghost" id="btnCancelPreviewModal">إلغاء وتعديل</button>
+          <button class="btn-modal-primary" id="btnConfirmRunPreview">
+            🚀 تأكيد ومتابعة التنفيذ
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2037,8 +2038,8 @@
       </div>
 
       <div class="header-actions">
-        <button class="hdr-btn" id="btnTogglePreview" title="تفعيل أو تعطيل المعاينة قبل التنفيذ">
-          <span id="previewToggleIcon">👁️</span> المعاينة قبل التنفيذ: <span id="previewToggleStatus" style="color:var(--accent-cyan); font-weight:700;">مفعلة</span>
+        <button class="hdr-btn" id="btnTogglePreview" title="معاينة وشرح ما سيحدث تلقائياً قبل التنفيذ">
+          <span id="previewToggleIcon">👁️</span> المعاينة التلقائية: <span id="previewToggleStatus" style="color:var(--accent-cyan); font-weight:700;">نشطة دائماً</span>
         </button>
         <button class="hdr-btn" id="btnHelp">❓ مساعدة</button>
         <button class="hdr-btn" id="btnSave">💾 حفظ</button>
@@ -2116,13 +2117,17 @@
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
         <div class="tab-bar">
-          <button class="tab-btn active" data-tab="resultsTab">📊 النتائج</button>
-          <button class="tab-btn" data-tab="previewTab">👁️ المعاينة والشرح</button>
+          <button class="tab-btn active" data-tab="previewTab">👁️ المعاينة والشرح</button>
+          <button class="tab-btn" data-tab="resultsTab">📊 النتائج</button>
           <button class="tab-btn" data-tab="schemaTab">🗂️ المخطط</button>
           <button class="tab-btn" data-tab="logTab">📜 السجل</button>
         </div>
 
-        <div class="tab-content active" id="resultsTab">
+        <div class="tab-content active" id="previewTab">
+          <div id="previewTabInner"></div>
+        </div>
+
+        <div class="tab-content" id="resultsTab">
           <div id="resultsMeta">
             <span id="rowCountLabel">لا توجد نتائج بعْد</span>
             <button class="export-btn" id="btnExportCSV" style="display:none">⬇️ تصدير CSV</button>
@@ -2133,10 +2138,6 @@
               <p>قم بتنفيذ استعلام لرؤية الجدول والنتائج هنا</p>
             </div>
           </div>
-        </div>
-
-        <div class="tab-content" id="previewTab">
-          <div id="previewTabInner"></div>
         </div>
 
         <div class="tab-content" id="schemaTab">
@@ -2638,6 +2639,7 @@
       document.getElementById('codeEditor').value = sql;
       updateBlockCount();
       updateLivePreview();
+      switchTab('previewTab');
     }
 
     function updateBlockCount() {
@@ -2997,28 +2999,22 @@
     /* =============================================
        SMART QUERY PREVIEW & EXPLANATION ENGINE
        ============================================= */
-    let previewEnabled = localStorage.getItem('simplesql_preview_enabled') !== '0';
+    let previewEnabled = true;
 
-    function togglePreviewMode(val) {
-      if (typeof val === 'boolean') {
-        previewEnabled = val;
+    function togglePreviewMode() {
+      const sql = document.getElementById('codeEditor') ? document.getElementById('codeEditor').value.trim() : '';
+      if (sql) {
+        openExecutionPreviewModal(sql);
       } else {
-        previewEnabled = !previewEnabled;
+        showToast('👁️ المعاينة التلقائية قبل التنفيذ نشطة دائماً', 'info');
       }
-      localStorage.setItem('simplesql_preview_enabled', previewEnabled ? '1' : '0');
-      updatePreviewToggleUI();
-      showToast(previewEnabled ? '👁️ تم تفعيل المعاينة قبل التنفيذ' : '⚡ تم إلغاء المعاينة (تنفيذ مباشر دائماً)', 'info');
     }
 
     function updatePreviewToggleUI() {
       const statusEl = document.getElementById('previewToggleStatus');
       if (statusEl) {
-        statusEl.textContent = previewEnabled ? 'مفعلة' : 'معطلة';
-        statusEl.style.color = previewEnabled ? 'var(--accent-cyan)' : 'var(--text-dim)';
-      }
-      const chk = document.getElementById('chkPreviewAlways');
-      if (chk) {
-        chk.checked = previewEnabled;
+        statusEl.textContent = 'نشطة دائماً';
+        statusEl.style.color = 'var(--accent-cyan)';
       }
     }
 
@@ -4188,7 +4184,10 @@
         });
 
         /* Code Editor Live Preview */
-        document.getElementById('codeEditor').addEventListener('input', updateLivePreview);
+        document.getElementById('codeEditor').addEventListener('input', function () {
+          updateLivePreview();
+          switchTab('previewTab');
+        });
         document.getElementById('codeEditor').addEventListener('keyup', updateLivePreview);
 
         /* Welcome Modal */
@@ -4265,6 +4264,7 @@
         }
 
         updateLivePreview();
+        switchTab('previewTab');
         addLog('Simple SQL جاهز ومتصل بالكامل 🚀', 'success');
 
       } catch (err) {
