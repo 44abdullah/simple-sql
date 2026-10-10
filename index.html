@@ -1035,12 +1035,17 @@
     #resultsTableWrap {
       flex: 1;
       overflow: auto;
+      overflow-x: auto;
       direction: ltr;
       min-height: 0;
+      /* Allow the table to be wider than the panel */
+      -webkit-overflow-scrolling: touch;
     }
 
     #resultsTableWrap table {
-      width: 100%;
+      /* min-width: allows the table to grow wider than its container and scroll */
+      min-width: 100%;
+      width: max-content;
       border-collapse: collapse;
       font-family: var(--font-code);
       font-size: 12px;
@@ -1048,9 +1053,9 @@
     }
 
     #resultsTableWrap th {
-      background: rgba(30, 41, 59, 0.9);
+      background: rgba(30, 41, 59, 0.97);
       color: var(--accent-cyan);
-      padding: 10px 12px;
+      padding: 10px 14px;
       text-align: left;
       border-bottom: 1px solid var(--border-subtle);
       position: sticky;
@@ -1060,6 +1065,8 @@
       cursor: pointer;
       user-select: none;
       font-weight: 700;
+      /* Prevent columns from being too narrow */
+      min-width: 80px;
     }
 
     #resultsTableWrap th:hover {
@@ -1073,11 +1080,12 @@
     }
 
     #resultsTableWrap td {
-      padding: 8px 12px;
+      padding: 9px 14px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       color: var(--text-main);
       text-align: left;
       white-space: nowrap;
+      min-width: 80px;
     }
 
     #resultsTableWrap tr:hover td {
