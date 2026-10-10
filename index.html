@@ -995,10 +995,12 @@
       flex: 1;
       flex-direction: column;
       overflow: hidden;
+      min-height: 0;
     }
 
     .tab-content.active {
       display: flex;
+      flex-direction: column;
     }
 
     #resultsMeta {
@@ -1034,6 +1036,7 @@
       flex: 1;
       overflow: auto;
       direction: ltr;
+      min-height: 0;
     }
 
     #resultsTableWrap table {
@@ -1833,13 +1836,16 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      margin: 10px 14px 4px;
+      padding: 8px 14px;
+      margin: 8px 14px 0;
       border-radius: var(--radius-md);
-      font-size: 12.5px;
+      font-size: 12px;
       transition: var(--transition);
       gap: 12px;
       flex-shrink: 0;
+      /* Ensure it never overlaps scrollable content below */
+      position: relative;
+      z-index: 1;
     }
 
     .execution-status-banner.preview-mode {
@@ -1908,6 +1914,10 @@
       color: var(--text-main);
       font-size: 12px;
       line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
     }
 
     .esb-text b {
