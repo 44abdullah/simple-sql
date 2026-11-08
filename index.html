@@ -4457,9 +4457,12 @@
           const sql = document.getElementById('codeEditor').value.trim();
           executeActualQuery(sql);
         });
-        document.getElementById('chkPreviewAlways').addEventListener('change', function (e) {
-          togglePreviewMode(e.target.checked);
-        });
+        const chkPreviewAlways = document.getElementById('chkPreviewAlways');
+        if (chkPreviewAlways) {
+          chkPreviewAlways.addEventListener('change', function (e) {
+            togglePreviewMode(e.target.checked);
+          });
+        }
         document.getElementById('btnPreviewSQL').addEventListener('click', function () {
           const sql = document.getElementById('codeEditor').value.trim();
           if (!sql) { showToast('لا يوجد استعلام للمعاينة', 'warn'); return; }
